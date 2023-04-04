@@ -29,7 +29,7 @@ Nucleo supports the following arithmetic operators: `+`, `-`, `*`, `/`.
 x + y\
 x - y\
 x * y\
-x / y\
+x / y
 
 ### Increment and decrement
 
@@ -38,7 +38,7 @@ Nucleo supports the following increment and decrement operators: `++`, `--`, `++
 x++\
 x--\
 ++x\
---x\
+--x
 
 ### Relational operators
 
@@ -49,7 +49,7 @@ x <= y\
 x > y\
 x >= y\
 x == y\
-x != y\
+x != y
 
 ### Logical operators
 
