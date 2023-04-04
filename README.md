@@ -12,14 +12,14 @@ Nucleo is a statically-typed programming language designed for systems programmi
 
 Variables in Nucleo are declared using the `let` or `var` keywords followed by the variable name and an optional initial value:
 
-let x = 5;
+let x = 5;\
 var y = "hello";
 
 ### Constants
 
 Constants in Nucleo are declared using the `const` keyword followed by the constant name and an initial value:
 
-const PI = 3.14;
+const PI = 3.14;\
 const MY_NAME = "John";
 
 ### Arithmetic operators
@@ -55,8 +55,8 @@ x != y
 
 Nucleo supports the following logical operators: `&&`, `||`, `!`.
 
-x && y
-x || y
+x && y\
+x || y\
 !x
 
 ### Conditional statements
