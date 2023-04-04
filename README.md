@@ -22,46 +22,34 @@ Constants in Nucleo are declared using the `const` keyword followed by the const
 const PI = 3.14;
 const MY_NAME = "John";
 
-markdown
-Copy code
-
 ### Arithmetic operators
 
 Nucleo supports the following arithmetic operators: `+`, `-`, `*`, `/`.
 
-x + y
-x - y
-x * y
-x / y
-
-markdown
-Copy code
+x + y\
+x - y\
+x * y\
+x / y\
 
 ### Increment and decrement
 
 Nucleo supports the following increment and decrement operators: `++`, `--`, `++x`, `--x`.
 
-x++
-x--
-++x
---x
-
-markdown
-Copy code
+x++\
+x--\
+++x\
+--x\
 
 ### Relational operators
 
 Nucleo supports the following relational operators: `<`, `<=`, `>`, `>=`, `==`, `!=`.
 
-x < y
-x <= y
-x > y
-x >= y
-x == y
-x != y
-
-markdown
-Copy code
+x < y\
+x <= y\
+x > y\
+x >= y\
+x == y\
+x != y\
 
 ### Logical operators
 
@@ -98,9 +86,6 @@ default:
 break;
 }
 
-bash
-Copy code
-
 ### Loops
 
 Nucleo supports while and for loops:
@@ -112,9 +97,6 @@ while (x < y) {
 for (let i = 0; i < n; i++) {
 // do something
 }
-
-vbnet
-Copy code
 
 ### Functions
 
@@ -151,9 +133,6 @@ GREEN,
 BLUE
 }
 
-arduino
-Copy code
-
 ### Import and export modules
 
 Modules can be imported and exported using the `import` and `export` keywords:
@@ -161,8 +140,6 @@ Modules can be imported and exported using the `import` and `export` keywords:
 import { add } from "./math.nc";
 export const PI = 3.14;
 
-javascript
-Copy code
 
 ### Comments
 
