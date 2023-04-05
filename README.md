@@ -150,3 +150,6 @@ Comments in Nucleo can be either single-line comments starting with `//` or mult
 a
 multi-line
 comment
+### References
+
+https://www.cs.ucr.edu/~dtan004/proj1/phase1_lexer.html
