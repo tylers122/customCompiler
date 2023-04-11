@@ -1,5 +1,3 @@
-# customCompiler
-A custom compiler for CS152
 # Nucleo Programming Language Specification
 
 ## Introduction
