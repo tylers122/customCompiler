@@ -115,6 +115,52 @@ a\
 multi-line\
 comment */
 
+### Tokens
+
+Here is a table showing the token for each symbol in the language:
+| Symbol   | Token Name   |
+|----------|--------------|
+| var      | VAR          |
+| +        | PLUS         |
+| -        | MINUS        |
+| *        | MULT         |
+| /        | DIV          |
+| %        | MOD          |
+| =        | ASSIGN       |
+| +=       | PLUS_ASSIGN  |
+| -=       | MINUS_ASSIGN |
+| \*=       | MULT_ASSIGN  |
+| /=       | DIV_ASSIGN   |
+| %=       | MOD_ASSIGN   |
+| ++       | INCREMENT    |
+| --       | DECREMENT    |
+| ==       | EQ           |
+| !=       | NEQ          |
+| <        | LT           |
+| >        | GT           |
+| <=       | LTE          |
+| >=       | GTE          |
+| &&       | AND          |
+| \|\|     | OR           |
+| !        | NOT          |
+| (        | LPAREN       |
+| )        | RPAREN       |
+| {        | LBRACE       |
+| }        | RBRACE       |
+| \[        | LBRACK       |
+| \]        | RBRACK       |
+| :        | COLON        |
+| while    | WHILE        |
+| for      | FOR          |
+| break    | BREAK        |
+| continue | CONT         |
+| if       | IF           |
+| else     | ELSE         |
+| import   | IMPORT       |
+| export   | EXPORT       |
+| fn       | FUNC         |
+| return   | RETURN       |
+
 ### References
 
 https://www.cs.ucr.edu/~dtan004/proj1/phase1_lexer.html
