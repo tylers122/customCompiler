@@ -1,8 +1,8 @@
 fn main() {
 
-  var m = 0;
-  var n = 0;
-  var o = 0;
+  var m;
+  var n;
+  var o;
   
   //main program
   
