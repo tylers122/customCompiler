@@ -1,34 +1,34 @@
 fn main() {
-    let a = 0;
-    let b = 0;
-    let c = 0;
+    var a = 0;
+    var b = 0;
+    var c = 0;
 
     a = 100;
     b = 50;
 
-    // Addition, answer is 150, since 150 := 100+50
+    // Addition, answer is 150, since 150 == 100+50
     c = a + b;
-    write(c);
+    print(c);
 
-    // Subtraction, answer is 50, since 50 := 100-50
+    // Subtraction, answer is 50, since 50 == 100-50
     c = a - b;
-    write(c);
+    print(c);
 
-    // Multiplication, answer is 5000, since 5000 := 100 * 50
+    // Multiplication, answer is 5000, since 5000 == 100 * 50
     c = a * b;
-    write(c);
+    print(c);
 
-    // Division, answer is 2, since 2 := 100/50
+    // Division, answer is 2, since 2 == 100/50
     c = a / b;
-    write(c);
+    print(c);
 
-    // Modulus, answer is 0, since 0 := 100 % 50
+    // Modulus, answer is 0, since 0 == 100 % 50
     c = a % b;
-    write(c);
+    print(c);
 
     // "Complex" Expression.
     a = 4;
     b = 2;
     c = (a + b) * 7;
-    write(c);
+    print(c);
 }
