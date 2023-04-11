@@ -64,9 +64,9 @@ x || y\
 Nucleo supports if-then-else statements using the `if` keyword:
 
 if (x < y) {\
-ensp // do something\
+&ensp; // do something\
 } else {\
-ensp // do something else\
+&ensp; // do something else\
 }
 
 ### Loops
@@ -74,13 +74,13 @@ ensp // do something else\
 Nucleo supports while and for loops (including "break" and "continue" loop control statements):
 
 while (x < y) {\
-ensp // do something\
-ensp break;\
+&ensp; // do something\
+&ensp; break;\
 }
 
 for (let i = 0; i < n; i++) {\
-ensp // do something\
-ensp continue;\
+&ensp; // do something\
+&ensp; continue;\
 }
 
 ### Functions
