@@ -12,7 +12,8 @@ Nucleo is a statically-typed programming language designed for systems programmi
 
 Variables in Nucleo are declared using the `var` keywords followed by the variable name and an optional initial value:
 
-var x = 5;
+var x = 5;\
+var y;
 
 ### Constants
 
