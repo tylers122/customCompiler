@@ -1,8 +1,8 @@
 fn main() {
 
   var a: int[20];
-  var b = 0;
-  var c = 0;
+  var b;
+  var c;
 
   //main program
   
