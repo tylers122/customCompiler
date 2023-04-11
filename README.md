@@ -10,10 +10,9 @@ Nucleo is a statically-typed programming language designed for systems programmi
 
 ### Variables
 
-Variables in Nucleo are declared using the `let` or `var` keywords followed by the variable name and an optional initial value:
+Variables in Nucleo are declared using the `var` keywords followed by the variable name and an optional initial value:
 
-let x = 5;\
-var y = "hello";
+var x = 5;
 
 ### Constants
 
@@ -24,17 +23,17 @@ const MY_NAME = "John";
 
 ### Arithmetic operators
 
-Nucleo supports the following arithmetic operators: `+`, `-`, `*`, `/`.
+Nucleo supports the following arithmetic operators: `+`, `-`, `*`, `/`, `%`.
 
 x + y\
 x - y\
 x * y\
-x / y
+x / y\
+x % y
 
 ### Increment and decrement
 
-Nucleo supports the following increment and decrement operators: `++`, `--`, `++x`, `--x`.
-
+Nucleo supports the following increment and decrement operators: `++`, `--`.
 x++\
 x--\
 ++x\
@@ -69,69 +68,33 @@ if (x < y) {
 // do something else
 }
 
-
-### Switch statements
-
-Nucleo supports switch statements:
-
-switch (x) {
-case 1:
-// do something
-break;
-case 2:
-// do something else
-break;
-default:
-// do something else
-break;
-}
-
 ### Loops
 
-Nucleo supports while and for loops:
+Nucleo supports while and for loops (including "break" and "continue" loop control statements):
 
 while (x < y) {
 // do something
+  break;
 }
 
 for (let i = 0; i < n; i++) {
 // do something
+  continue;
 }
 
 ### Functions
 
 Functions in Nucleo are declared using the `fn` keyword followed by the function name, a list of parameters enclosed in parentheses, and an optional return type:
 
-fn add(x: int, y: int) -> int {
-return x + y;
+fn add(x, y) -> int {
+  return x + y;
 }
-
 
 ### Arrays
 
 Arrays in Nucleo are declared using square brackets `[]`:
 
-let arr: int[10];
-let matrix: int[2][2];
-
-### Structs
-
-Structs in Nucleo are declared using the `struct` keyword:
-
-struct Point {
-x: int,
-y: int
-}
-
-### Enums
-
-Enums in Nucleo are declared using the `enum` keyword:
-
-enum Color {
-RED,
-GREEN,
-BLUE
-}
+var arr: int[10];
 
 ### Import and export modules
 
@@ -149,7 +112,8 @@ Comments in Nucleo can be either single-line comments starting with `//` or mult
 /* This is
 a
 multi-line
-comment
+comment */
+
 ### References
 
 https://www.cs.ucr.edu/~dtan004/proj1/phase1_lexer.html
