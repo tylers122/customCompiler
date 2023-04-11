@@ -4,6 +4,12 @@
 
 Nucleo is a statically-typed programming language designed for systems programming and software development. It features a simple syntax, powerful abstractions, and a rich set of libraries and tools.
 
+##Detailed Requirements
+
+Experimental programming language name: Nucleo\
+Extension: .nc\
+Compiler name: NucleoC
+
 ## Language Features
 
 ### Variables
