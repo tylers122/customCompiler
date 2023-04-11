@@ -34,6 +34,7 @@ x % y
 ### Increment and decrement
 
 Nucleo supports the following increment and decrement operators: `++`, `--`.
+
 x++\
 x--\
 ++x\
@@ -62,32 +63,32 @@ x || y\
 
 Nucleo supports if-then-else statements using the `if` keyword:
 
-if (x < y) {
-// do something
-} else {
-// do something else
+if (x < y) {\
+// do something\
+} else {\
+// do something else\
 }
 
 ### Loops
 
 Nucleo supports while and for loops (including "break" and "continue" loop control statements):
 
-while (x < y) {
-// do something
-  break;
+while (x < y) {\
+// do something\
+  break;\
 }
 
-for (let i = 0; i < n; i++) {
-// do something
-  continue;
+for (let i = 0; i < n; i++) {\
+// do something\
+  continue;\
 }
 
 ### Functions
 
 Functions in Nucleo are declared using the `fn` keyword followed by the function name, a list of parameters enclosed in parentheses, and an optional return type:
 
-fn add(x, y) -> int {
-  return x + y;
+fn add(x, y) -> int {\
+  return x + y;\
 }
 
 ### Arrays
@@ -100,7 +101,7 @@ var arr: int[10];
 
 Modules can be imported and exported using the `import` and `export` keywords:
 
-import { add } from "./math.nc";
+import { add } from "./math.nc";\
 export const PI = 3.14;
 
 
@@ -108,10 +109,10 @@ export const PI = 3.14;
 
 Comments in Nucleo can be either single-line comments starting with `//` or multi-line comments starting with `/*` and ending with `*/`:
 
-// This is a single line comment
-/* This is
-a
-multi-line
+// This is a single line comment\
+/* This is\
+a\
+multi-line\
 comment */
 
 ### References
