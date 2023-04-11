@@ -88,7 +88,7 @@ ensp continue;\
 Functions in Nucleo are declared using the `fn` keyword followed by the function name, a list of parameters enclosed in parentheses, and an optional return type:
 
 fn add(x, y) -> int {\
-ensp return x + y;\
+&ensp; return x + y;\
 }
 
 ### Arrays
