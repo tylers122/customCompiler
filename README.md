@@ -59,6 +59,13 @@ x && y\
 x || y\
 !x
 
+### Read and Write statements
+
+Nucleo supports write and write statements using the keywords `print` and `input`:
+
+print("Example text")\
+input()
+
 ### Conditional statements
 
 Nucleo supports if-then-else statements using the `if` keyword:
@@ -150,6 +157,8 @@ Here is a table showing the token for each symbol in the language:
 | \[        | LBRACK       |
 | \]        | RBRACK       |
 | :        | COLON        |
+| print    | PRINT        |
+| input    | INPUT        |
 | while    | WHILE        |
 | for      | FOR          |
 | break    | BREAK        |
