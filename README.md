@@ -64,9 +64,9 @@ x || y\
 Nucleo supports if-then-else statements using the `if` keyword:
 
 if (x < y) {\
-  // do something\
+ensp // do something\
 } else {\
-  // do something else\
+ensp // do something else\
 }
 
 ### Loops
@@ -74,13 +74,13 @@ if (x < y) {\
 Nucleo supports while and for loops (including "break" and "continue" loop control statements):
 
 while (x < y) {\
-  // do something\
-  break;\
+ensp // do something\
+ensp break;\
 }
 
 for (let i = 0; i < n; i++) {\
-  // do something\
-  continue;\
+ensp // do something\
+ensp continue;\
 }
 
 ### Functions
@@ -88,7 +88,7 @@ for (let i = 0; i < n; i++) {\
 Functions in Nucleo are declared using the `fn` keyword followed by the function name, a list of parameters enclosed in parentheses, and an optional return type:
 
 fn add(x, y) -> int {\
-  return x + y;\
+ensp return x + y;\
 }
 
 ### Arrays
