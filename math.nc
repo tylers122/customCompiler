@@ -1,7 +1,7 @@
 fn main() {
-    var a = 0;
-    var b = 0;
-    var c = 0;
+    var a;
+    var b;
+    var c;
 
     a = 100;
     b = 50;
