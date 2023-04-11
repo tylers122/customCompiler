@@ -5,6 +5,7 @@ fn main() {
   var o = 0;
   
   //main program
+  
   n = input();
   if (n >= 100) {
     print(n);
@@ -14,5 +15,4 @@ fn main() {
   }
   
   print(o);
-  
 }
