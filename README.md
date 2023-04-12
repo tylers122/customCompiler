@@ -141,7 +141,7 @@ Here is a table showing the token for each symbol in the language:
 | =        | ASSIGN       |
 | +=       | PLUS_ASSIGN  |
 | -=       | MINUS_ASSIGN |
-| \*=       | MULT_ASSIGN  |
+| \*=      | MULT_ASSIGN  |
 | /=       | DIV_ASSIGN   |
 | %=       | MOD_ASSIGN   |
 | ++       | INCREMENT    |
@@ -159,8 +159,8 @@ Here is a table showing the token for each symbol in the language:
 | )        | RPAREN       |
 | {        | LBRACE       |
 | }        | RBRACE       |
-| \[        | LBRACK       |
-| \]        | RBRACK       |
+| \[       | LBRACK       |
+| \]       | RBRACK       |
 | :        | COLON        |
 | print    | PRINT        |
 | input    | INPUT        |
