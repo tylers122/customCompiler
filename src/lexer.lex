@@ -17,7 +17,7 @@ ASSIGN [=]
 PLUS_ASSIGN (\\+=)
 MINUS_ASSIGN (-=)
 MULT_ASSIGN (\*=)
-DIV_ASSIGN (\\/\\=)
+DIV_ASSIGN (\\/=)
 MOD_ASSIGN (%=)
 INCREMENT (\\+\\+)
 DECREMENT (--)
