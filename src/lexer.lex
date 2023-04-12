@@ -14,7 +14,7 @@ MULT [*]
 DIV [/]
 MOD [%]
 ASSIGN [=]
-PLUS_ASSIGN (+=)
+PLUS_ASSIGN (\\+\\=)
 MINUS_ASSIGN (-=)
 MULT_ASSIGN (\*=)
 DIV_ASSIGN (/=)
