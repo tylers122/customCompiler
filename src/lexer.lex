@@ -3,9 +3,6 @@
 #include <string.h>
 %}
 
-%option noyywrap
-%option yylineno
-
 DIGIT [0-9]
 ALPHA [A-Za-z]
 PLUS [+]
