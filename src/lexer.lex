@@ -51,9 +51,21 @@ VAR (var)
 %%
 
 [ \t\r\n]+  { /* ignore whitespaces */ }
-"//"(.*)    { /* ignore single-line comments */ }
-"/*"        { /* ignore multi-line comments */ int c = yyinput(); \
-                                              while (c != '*' || yyinput() != '/') c = yyinput(); }
+"//"(.*)    { /* ignore single-line comments */ yymore(); }
+"/*"        { /* ignore multi-line comments */
+                  int c;
+                  yymore();
+                  while ((c = input()) != EOF) {
+                      yymore();
+                      if (c == '*') {
+                          if ((c = input()) == '/') {
+                              break;
+                          } else {
+                              unput(c);
+                          }
+                      }
+                  }
+              }
 
 
 
