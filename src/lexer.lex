@@ -122,6 +122,11 @@ VAR (var)
 
 %%
 
+int yyinput(char *buf, int max_size)
+{
+    return fread(buf, 1, max_size, stdin);
+}
+
 int main(void) {
 
     printf("Ctrl + D to quit\n");
