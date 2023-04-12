@@ -49,6 +49,14 @@ RETURN [return]
 VAR [var]
 
 %%
+
+[ \t\r\n]+  { /* ignore whitespaces */ }
+"//"(.*)    { /* ignore single-line comments */ }
+"/*"        { /* ignore multi-line comments */ int c = yyinput(); \
+                                              while (c != '*' || yyinput() != '/') c = yyinput(); }
+
+
+
 {DIGIT}+    { printf("NUMBER: %s\n", yytext); }
 {ALPHA}+    {
                 if(strcmp(yytext, "print") == 0)
