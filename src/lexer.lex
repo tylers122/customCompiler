@@ -1,10 +1,14 @@
 %{
 #include <stdio.h>
 #include <string.h>
+
+int curr_col = 1;
 %}
 
+%option yylineno
 DIGIT [0-9]
 ALPHA [A-Za-z]
+INVALID_ALPHA [_]+[A-Za-z]+
 PLUS [+]
 MINUS [-]
 MULT [*]
@@ -129,9 +133,10 @@ VAR (var)
 {LBRACK} { printf("LBRACK: %s\n", yytext); }
 {RBRACK} { printf("RBRACK: %s\n", yytext); }
 {COLON} { printf("COLON: %s\n", yytext); }
+{INVALID_ALPHA} {printf("Error at line %d, column %d: Token cannot start with underscore: %s\n", yylineno, curr_col+=yyleng, yytext);}
 
-.       { printf("UNRECOGNIZED PATTERN: %s\n", yytext); }
-
+.       { printf("Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", yylineno, curr_col+=yyleng, yytext); }
+         
 %%
 
 int yyinput(char *buf, int max_size)
