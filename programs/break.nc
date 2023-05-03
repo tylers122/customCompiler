@@ -2,17 +2,17 @@
 
 fn main() {
 
-  var i;
+  var i
   
-  i = 0;
+  i = 0
   while (i <= 10) {
-    print(i);
+    print(i)
     
     if (i < 3) {
-      break;
+      break
     }
     
-    i = i + 1;    
+    i = i + 1    
     
   }
   
