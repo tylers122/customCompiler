@@ -25,7 +25,7 @@ struct Symbol {
 
 struct Function {
   std::string name;
-  std::vector<Symbol> declarations;
+  std::vector<Symbol> arguments;
 };
 
 std::vector <Function> symbol_table;
@@ -50,8 +50,8 @@ Function *get_function() {
 // you may want to extend "find" to handle different types of "Integer" vs "Array"
 bool find(std::string &value) {
   Function *f = get_function();
-  for(int i=0; i < f->declarations.size(); i++) {
-    Symbol *s = &f->declarations[i];
+  for(int i=0; i < f->arguments.size(); i++) {
+    Symbol *s = &f->arguments[i];
     if (s->name == value) {
       return true;
     }
@@ -74,7 +74,7 @@ void add_variable_to_symbol_table(std::string &value, Type t) {
   s.name = value;
   s.type = t;
   Function *f = get_function();
-  f->declarations.push_back(s);
+  f->arguments.push_back(s);
 }
 
 // a function to print out the symbol table to the screen
@@ -84,8 +84,8 @@ void print_symbol_table(void) {
   printf("--------------------\n");
   for(int i=0; i<symbol_table.size(); i++) {
     printf("function: %s\n", symbol_table[i].name.c_str());
-    for(int j=0; j<symbol_table[i].declarations.size(); j++) {
-      printf("  locals: %s\n", symbol_table[i].declarations[j].name.c_str());
+    for(int j=0; j<symbol_table[i].arguments.size(); j++) {
+      printf("  locals: %s\n", symbol_table[i].arguments[j].name.c_str());
     }
   }
   printf("--------------------\n");
@@ -109,56 +109,71 @@ struct CodeNode {
 %start prog_start
 %token INVALID_IDENT INVALID_TOKEN
 %token PRINT INPUT WHILE FOR BREAK CONT IF ELSE IMPORT EXPORT FUNC RETURN VAR
-%token IDENT NUMBER
 %token PLUS MINUS MULT DIV MOD ASSIGN PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN DIV_ASSIGN
 %token MOD_ASSIGN INCREMENT DECREMENT EQ NEQ LT GT LTE GTE AND OR NOT LPAREN
 %token RPAREN LBRACE RBRACE LBRACK RBRACK COLON SEMICOLON COMMA
+%token <op_val> NUMBER
+%token <op_val> IDENT
+%type  <node>   functions
+%type  <node>   function
+%type  <node>   statements
+%type  <node>   statement
+
 
 %%
 prog_start: 
-functions
-{
-        CodeNode *node = $1;
-        std::string code = node->code;
-        printf("Generated code:\n");
-        printf("%s\n", code.c_str());
-}
+        functions
+                {
+                        CodeNode *node = $1;
+                        std::string code = node->code;
+                        printf("Generated code:\n");
+                        printf("%s\n", code.c_str());
+                }
 
 functions: 
         %empty
-        {
-                CodeNode *node = new CodeNode;
-                $$ = node;
-        }
+                {
+                        CodeNode *node = new CodeNode;
+                        $$ = node;
+                }
         | function 
-        {
-                CodeNode *func = $1;
-                std::string code = func->code;
-                CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node;
-        }        
+                {
+                        CodeNode *func = $1;
+                        std::string code = func->code;
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
+                }        
         | function functions 
-        {
-                CodeNode *func  = $1;
-                CodeNode *funcs = $2;
-                std::string code = func->code + funcs->code;
-                CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node;
-        }
+                {
+                        CodeNode *func  = $1;
+                        CodeNode *funcs = $2;
+                        std::string code = func->code + funcs->code;
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
+                }
         
 
 function: 
         FUNC IDENT LPAREN arguments RPAREN LBRACE 
         statements RBRACE 
-        {
-                
-        }
+                {
+                        std::string func_name = $2;
+                        CodeNode *args = $4;
+                        CodeNode *stmts = $7;
+                        std::string code = std::string("fn ") + func_name;
+                        code += args->code;
+                        code += stmts->code;
+                }
 	
 
 arguments: 
-        %empty {printf("arguments -> epsilon\n");}
+        %empty 
+                {
+                        CodeNode *node = new CodeNode;
+                        $$ = node;
+                }
         | argument repeat_arguments 
                 {
                         
@@ -167,7 +182,8 @@ arguments:
 repeat_arguments: 
         %empty 
                 {
-                        
+                        CodeNode *node = new CodeNode;
+                        $$ = node;                        
                 }
         | COMMA argument repeat_arguments 
                 {
@@ -184,7 +200,8 @@ argument:
 statements: 
         %empty /* epsilon */ 
                 {
-                        
+                        CodeNode *node = new CodeNode;
+                        $$ = node;                        
                 }
         | statement statements 
                 {
@@ -498,7 +515,8 @@ function_call:
 args: 
         %empty 
                 {
-                
+                        CodeNode *node = new CodeNode;
+                        $$ = node;                
                 }
         | arg repeat_args 
                 {
@@ -508,7 +526,8 @@ args:
 repeat_args: 
         %empty 
                 {
-                
+                        CodeNode *node = new CodeNode;
+                        $$ = node;                
                 }
         | COMMA arg repeat_args 
                 {
