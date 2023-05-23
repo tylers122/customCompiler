@@ -5,6 +5,9 @@
 
 int curr_line = 1;
 int curr_col = 1;
+
+extern char *identToken;
+extern int numberToken;
 %}
 
 /*
