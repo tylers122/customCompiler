@@ -68,7 +68,14 @@ VAR (var)
 
 
 
-[0-9]+    { curr_col += strlen(yytext);  return NUMBER;}
+[0-9]+  { 
+            curr_col += strlen(yytext);
+            char * token = new char[yyleng];
+            strcpy(token, yytext);
+            yylval.op_val = token;
+            numberToken = atoi(yytext);
+            return NUMBER;
+        }
 [A-Za-z]+    {
                 if(strcmp(yytext, "print") == 0) {
                     curr_col += strlen(yytext);

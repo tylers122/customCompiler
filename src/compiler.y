@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <sstream>
 
 extern FILE* yyin;
 extern int yylex(void);
@@ -95,6 +97,20 @@ struct CodeNode {
     std::string code; // generated code as a string.
     std::string name;
 };
+
+
+std::string create_temp() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "_temp" + ss.str();
+        num += 1;
+        return value;
+}
+
+std::string decl_temp(std::string &temp){
+        return std::string(". ") + temp + std::string("\n");
+}
 %}
 
 
@@ -123,6 +139,21 @@ struct CodeNode {
 %type  <node>   argument
 %type  <node>   repeat_arguments
 %type  <node>   expression
+%type  <node>   var_declaration
+%type  <node>   arr_declaration
+%type  <node>   arr_call
+%type  <node>   assign_statement
+%type  <node>   inc_dec_statement
+%type  <node>   print_statement
+%type  <node>   input_statement
+%type  <node>   if_statement
+%type  <node>   while_statement
+%type  <node>   for_statement
+%type  <node>   break_statement
+%type  <node>   continue_statement
+%type  <node>   function_call
+%type  <node>   return_statement
+%type  <node>   binary_expression
 
 
 %%
@@ -186,6 +217,10 @@ arguments:
                         CodeNode *arg = $1;
                         CodeNode *args = $2;
                         std::string code = arg->code + args->code;
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 
 repeat_arguments: 
@@ -196,13 +231,27 @@ repeat_arguments:
                 }
         | COMMA argument repeat_arguments 
                 {
-                        
+                        CodeNode *arg = $2;
+                        CodeNode *args = $3;
+                        std::string code = arg->code + args->code;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 
 argument: 
         VAR IDENT 
                 {
+                        std::string value = $2;
+                        Type t = Integer;
+                        add_variable_to_symbol_table(value, t);
+
+                        std::string code = std::string(". ") + value + std::string("\n");
                         
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 	;
 
@@ -214,42 +263,80 @@ statements:
                 }
         | statement statements 
                 {
+                        CodeNode *stmt = $1;
+                        CodeNode *stmts = $2;
                         
+                        CodeNode *node = new CodeNode;
+                        node->code = stmt->code + stmts->code;
+                        $$ = node;
                 }
         ;
 
 statement: 
         var_declaration 
                 {
-                        
+                        CodeNode *varDec = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = varDec->code;
+                        $$ = node;
                 }
         | arr_declaration 
                 {
-                        
+                        CodeNode *arrDec = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = arrDec->code;
+                        $$ = node;
                 }
         | arr_call 
                 {
-                        
+                        CodeNode *arrCall = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = arrCall->code;
+                        $$ = node;
                 }
         | assign_statement 
                 {
-                        
+                        CodeNode *assign = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = assign->code;
+                        $$ = node;
                 }
         | inc_dec_statement 
                 {
-                        
+                        CodeNode *incDec = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = incDec->code;
+                        $$ = node;
+
                 }
         | print_statement 
                 {
-                        
+                        CodeNode *print = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = print->code;
+                        $$ = node;
                 }
         | input_statement 
                 {
-                        
+                        CodeNode *input = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = input->code;
+                        $$ = node;
                 }
         | if_statement 
                 {
-                        
+                        CodeNode *ifState = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = ifState->code;
+                        $$ = node;
                 }
         | while_statement 
                 {
@@ -280,31 +367,77 @@ statement:
 var_declaration: 
         VAR IDENT  
                 {
+                        std::string ident = $2;
+                        Type t = Integer;
+                        add_variable_to_symbol_table(ident, t);
+
+                        std::string code = std::string(". ") + ident + std::string("\n");
                         
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
+
         | VAR IDENT ASSIGN NUMBER  
                 {
-                        //std::string value = $1;
-                        //Type t = Integer;
-                        //add_variable_to_symbol_table(value, t);
+                        std::string ident = $2;
+                        Type t = Integer;
+                        add_variable_to_symbol_table(ident, t);
+
+                        std::string code = std::string(". ") + ident + std::string("\n");
+
+                        std::string value = $4;
+
+                        code += std::string("= ") + ident + std::string(", ") + value + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         ;
 
 arr_declaration: 
         VAR IDENT LBRACK NUMBER RBRACK 
                 {
-                        
+                        std::string ident = $2;
+                        std::string value = $4;
+                        Type t = Array;
+                        add_variable_to_symbol_table(ident, t);
+
+                        std::string code = std::string(".[] ") + ident + std::string(", ") + value + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 
 arr_call:       
         IDENT LBRACK NUMBER RBRACK 
                 {
-                        
+                        std::string ident = $1;
+                        std::string index = $3;
+
+                        std::string code = std::string("[]= ") + ident + std::string(", ") + index + std::string(", ");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 
+//CALL ARRAY DOESN'T WORK, MAKE ANOTHER STATE VAR THAT SPLITS TO IDENT OR ARR
 assign_statement: 
         IDENT ASSIGN expression         
                 {
+                        std::string ident = $1;
+                        CodeNode *exp = $3;
+                        
+                        std::string code = exp->code;
+                        
+                        code += std::string("= ") + ident + std::string(", ") + exp->name + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                         
                 }
         | IDENT PLUS_ASSIGN expression  
@@ -329,7 +462,19 @@ assign_statement:
                 }
         | arr_call ASSIGN expression  
                 {
-                
+                        CodeNode *arrCall = $1;
+                        CodeNode *exp = $3;
+                        
+                        
+                        std::string code = exp->code;
+
+                        code += arrCall->code;
+                        
+                        code += exp->name + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         | arr_call PLUS_ASSIGN expression  
                 {
@@ -365,31 +510,58 @@ inc_dec_statement:
 print_statement: 
         PRINT LPAREN IDENT RPAREN  
                 {
-                        
+                        std::string ident = $3;
+
+                        std::string code = std::string(".> ") + ident + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         | PRINT LPAREN NUMBER RPAREN  
                 {
-                        
+                        std::string value = $3;
+
+                        std::string code = std::string(".> ") + value + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         | PRINT LPAREN expression RPAREN 
                 {
-                        
+                        CodeNode *exp = $3;
+
+                        std::string code = exp->code;
+
+                        code += std::string(".> ") + exp->name + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         | PRINT LPAREN arr_call RPAREN 
                 {
-                        
+                        //fix this
                 }
 
 input_statement: 
-        INPUT LPAREN RPAREN 
+        INPUT LPAREN NUMBER RPAREN 
                 {
+                        std::string value = $3;
 
+                        std::string code = std::string(".< ") + value + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = value;
+                        $$ = node;
                 }
 
 if_statement: 
         IF LPAREN expression RPAREN LBRACE statements RBRACE 
                 {
-                
+
                 }
         | IF LPAREN expression RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE 
                 {
@@ -434,19 +606,43 @@ continue_statement:
 expression: 
         IDENT 
                 {
-                
+                        std::string ident = $1;
+
+                        std::string name = ident;
+
+                        CodeNode *node = new CodeNode;
+                        node->name = name;
+                        $$ = node;
+
                 }
         | NUMBER 
                 {
-                
+                        std::string value = $1;
+
+                        std::string name = value;
+
+                        CodeNode *node = new CodeNode;
+                        node->name = name;
+                        $$ = node;
                 }
         | LPAREN expression RPAREN 
                 {
-                
+                        CodeNode *exp = $2;
+
+
+                        CodeNode *node = new CodeNode;
+                        node->code = exp->code;
+                        node->name = exp->name;
+                        $$ = node;
                 }
         | input_statement 
                 {
+                        CodeNode *inState = $1;
 
+                        CodeNode *node = new CodeNode;
+                        node->code = inState->code;
+                        node->name = inState->name;
+                        $$ = node;
                 }
         | arr_call 
                 {
@@ -458,61 +654,209 @@ expression:
                 }
         | binary_expression 
                 {
-                
+                        CodeNode *binExp = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = binExp->code;
+                        node->name = binExp->name;
+                        $$ = node;
                 }
 
 binary_expression: 
         expression PLUS expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("+ ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression MINUS expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("- ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression MULT expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("* ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression DIV expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("/ ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression MOD expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("% ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression EQ expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("== ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression NEQ expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("!= ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression LT expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("< ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression LTE expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("<= ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression GT expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("> ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression GTE expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string(">= ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression AND expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("&& ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         | expression OR expression 
                 {
-                
+                        CodeNode *exp1 = $1;
+                        CodeNode *exp2 = $3;
+                        std::string temp = create_temp();
+
+                        std::string code = decl_temp(temp); 
+                        
+                        code += std::string("|| ") + temp + std::string(", ") + exp1->name + std::string(", ") + exp2->name + std::string("\n");
+                        
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        node->name = temp;
+                        $$ = node;
                 }
         ;
 
