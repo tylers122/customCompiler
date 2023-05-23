@@ -3,11 +3,11 @@
 #include "y.tab.h"
 #include <string.h>
 #include <stdlib.h>
-#inclulde <vector>
+#include <vector>
 #include <string>
 
 extern FILE* yyin;
-extern int yylex();
+extern int yylex(void);
 extern int yylineno;
 extern int curr_col;
 void yyerror(const char* s);
@@ -105,7 +105,7 @@ struct CodeNode {
 
 
 
-%error-verbose
+%define parse.error verbose
 %start prog_start
 %token INVALID_IDENT INVALID_TOKEN
 %token PRINT INPUT WHILE FOR BREAK CONT IF ELSE IMPORT EXPORT FUNC RETURN VAR
@@ -114,10 +114,15 @@ struct CodeNode {
 %token RPAREN LBRACE RBRACE LBRACK RBRACK COLON SEMICOLON COMMA
 %token <op_val> NUMBER
 %token <op_val> IDENT
+%type  <op_val> func_ident
 %type  <node>   functions
 %type  <node>   function
 %type  <node>   statements
 %type  <node>   statement
+%type  <node>   arguments
+%type  <node>   argument
+%type  <node>   repeat_arguments
+%type  <node>   expression
 
 
 %%
@@ -131,42 +136,44 @@ prog_start:
                 }
 
 functions: 
-        %empty
-                {
-                        CodeNode *node = new CodeNode;
-                        $$ = node;
-                }
-        | function 
-                {
-                        CodeNode *func = $1;
-                        std::string code = func->code;
-                        CodeNode *node = new CodeNode;
-                        node->code = code;
-                        $$ = node;
-                }        
-        | function functions 
-                {
-                        CodeNode *func  = $1;
-                        CodeNode *funcs = $2;
-                        std::string code = func->code + funcs->code;
-                        CodeNode *node = new CodeNode;
-                        node->code = code;
-                        $$ = node;
-                }
+        %empty {
+                CodeNode *node = new CodeNode;
+                $$ = node;
+        }
+        | function functions {
+                CodeNode *func = $1;
+                CodeNode *funcs = $2;
+                std::string code = func->code + funcs->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+        };
         
 
 function: 
-        FUNC IDENT LPAREN arguments RPAREN LBRACE 
-        statements RBRACE 
+        FUNC func_ident LPAREN arguments RPAREN LBRACE statements RBRACE 
                 {
                         std::string func_name = $2;
                         CodeNode *args = $4;
                         CodeNode *stmts = $7;
-                        std::string code = std::string("fn ") + func_name;
+
+                        std::string code = std::string("fn ") + func_name + std::string("\n");
                         code += args->code;
                         code += stmts->code;
-                }
+                        code += std::string("endfunc\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
+                };
 	
+func_ident: 
+        IDENT 
+                {
+                        std::string name = $1;
+                        add_function_to_symbol_table(name);
+                        $$ = $1;
+                }
 
 arguments: 
         %empty 
@@ -176,7 +183,9 @@ arguments:
                 }
         | argument repeat_arguments 
                 {
-                        
+                        CodeNode *arg = $1;
+                        CodeNode *args = $2;
+                        std::string code = arg->code + args->code;
                 }
 
 repeat_arguments: 
@@ -275,7 +284,9 @@ var_declaration:
                 }
         | VAR IDENT ASSIGN NUMBER  
                 {
-
+                        //std::string value = $1;
+                        //Type t = Integer;
+                        //add_variable_to_symbol_table(value, t);
                 }
         ;
 
@@ -515,8 +526,7 @@ function_call:
 args: 
         %empty 
                 {
-                        CodeNode *node = new CodeNode;
-                        $$ = node;                
+                              
                 }
         | arg repeat_args 
                 {
@@ -526,8 +536,7 @@ args:
 repeat_args: 
         %empty 
                 {
-                        CodeNode *node = new CodeNode;
-                        $$ = node;                
+                            
                 }
         | COMMA arg repeat_args 
                 {
@@ -555,7 +564,7 @@ void yyerror(const char* s) {
 	fprintf(stderr, "Error %s at line %d, column %d\n", s, yylineno, curr_col);
 } 
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
 	if (argc >= 2) {
 		yyin = fopen(argv[1], "r");
 		if (yyin == NULL)
@@ -565,4 +574,6 @@ void main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
+
+        
 }

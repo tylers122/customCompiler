@@ -64,20 +64,7 @@ VAR (var)
 
 [ \t\r]+  { curr_col += strlen(yytext); /* ignore whitespaces */ }
 "//"(.*)    { /* ignore single-line comments */ yymore(); }
-"/*"        { /* ignore multi-line comments */
-                  int c;
-                  yymore();
-                  while ((c = input()) != EOF) {
-                      yymore();
-                      if (c == '*') {
-                          if ((c = input()) == '/') {
-                              break;
-                          } else {
-                              unput(c);
-                          }
-                      }
-                  }
-              }
+"/*"        { /* ignore multi-line comments */}
 
 
 
@@ -124,6 +111,10 @@ VAR (var)
                     return VAR;
                 } else {
                     curr_col += strlen(yytext);
+                    char * token = new char[yyleng];
+                    strcpy(token, yytext);
+                    yylval.op_val = token;
+                    identToken = yytext;
                     return IDENT;
                 }
             }
