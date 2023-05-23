@@ -1,4 +1,9 @@
 fn main() {
-    var x
-    x = input(10)
+    var a
+    var b
+    var c
+
+    a = 100
+    b = 50
+    c = a + b
 }

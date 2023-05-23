@@ -1,7 +1,12 @@
 Generated code:
 fn main
-. x
-.< 10
-= x, 10
+. a
+. b
+. c
+= a, 100
+= b, 50
+. _temp0
++ _temp0, a, b
+= c, _temp0
 endfunc
 
