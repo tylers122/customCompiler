@@ -45,102 +45,88 @@ statements: %empty /* epsilon */ {printf("statements -> epsilon\n");}
 
 statement: var_declaration {printf("statement -> var_declaration\n");}
         | arr_declaration {printf("statement -> arr_declaration\n");}
-        | arr_call {printf("statement -> arr_call\n");}
-        | assign_statement {printf("statement -> assign_statement\n");}
-        | inc_dec_statement {printf("statement -> inc_dec_statement\n");}
         | print_statement {printf("statement -> print_statement\n");}
         | input_statement {printf("statement -> input_statement\n");}
         | if_statement {printf("statement -> if_statement\n");}
         | while_statement {printf("statement -> while_statement\n");}
-        | for_statement {printf("statement -> for_statement\n");}
         | break_statement {printf("statement -> break_statement\n");}
         | continue_statement {printf("statement -> continue_statement\n");}
         | function_call {printf("statement -> function_call\n");}
         | return_statement {printf("statement -> return_statement\n");}
+        | assign_var {printf("statement -> assign_var\n");}
+        | assign_arr {printf("statement -> assign_arr\n");}
         ;
 
-var_declaration: VAR IDENT  {printf("var_declaration -> VAR IDENT \n");}
-                | VAR IDENT ASSIGN NUMBER  {printf("var_declaration -> VAR IDENT ASSIGN NUMBER \n");}
-	        ;
+var_declaration: VAR IDENT assign_statement {printf("var_declaration -> VAR IDENT assign_statement \n");}
 
-arr_declaration: VAR IDENT LBRACK NUMBER RBRACK {printf("arr_declaration -> VAR IDENT LBRACK NUMBER RBRACK\n");}
+arr_declaration: VAR IDENT LBRACK add_expression RBRACK assign_statement {printf("arr_declaration -> VAR IDENT LBRACK add_expression RBRACK assign_statement\n");}
 
-arr_call: IDENT LBRACK NUMBER RBRACK {printf("arr_call -> IDENT LBRACK NUMBER RBRACK\n");}
+assign_statement: %empty {printf("assign_statement -> epsilon\n");}
+                | ASSIGN add_expression {printf("assign_statement -> ASSIGN add_expression\n");}
+                ;
 
-assign_statement: IDENT ASSIGN expression  {printf("assign_statement -> IDENT ASSIGN expression \n");}
-                | IDENT PLUS_ASSIGN expression  {printf("assign_statement -> IDENT PLUS_ASSIGN expression \n");}
-                | IDENT MINUS_ASSIGN expression  {printf("assign_statement -> IDENT MINUS_ASSIGN expression \n");}
-                | IDENT MULT_ASSIGN expression  {printf("assign_statement -> IDENT MULT_ASSIGN expression \n");}
-                | IDENT DIV_ASSIGN expression  {printf("assign_statement -> IDENT DIV_ASSIGN expression \n");}
-                | IDENT MOD_ASSIGN expression  {printf("assign_statement -> IDENT MOD_ASSIGN expression \n");}
-                | arr_call ASSIGN expression  {printf("assign_statement -> arr_call ASSIGN expression \n");}
-                | arr_call PLUS_ASSIGN expression  {printf("assign_statement -> arr_call PLUS_ASSIGN expression \n");}
-                | arr_call MINUS_ASSIGN expression  {printf("assign_statement -> arr_call MINUS_ASSIGN expression \n");}
-                | arr_call MULT_ASSIGN expression  {printf("assign_statement -> arr_call MULT_ASSIGN expression \n");}
-                | arr_call DIV_ASSIGN expression  {printf("assign_statement -> arr_call DIV_ASSIGN expression \n");}
-                | arr_call MOD_ASSIGN expression  {printf("assign_statement -> arr_call MOD_ASSIGN expression \n");}
+print_statement: PRINT LPAREN binary_expression RPAREN {printf("print_statement -> PRINT LPAREN binary_expression RPAREN \n");}
 
-inc_dec_statement: IDENT INCREMENT  {printf("inc_dec_statement -> IDENT INCREMENT \n");}
-                | IDENT DECREMENT  {printf("inc_dec_statement -> IDENT DECREMENT \n");}
+input_statement: INPUT LPAREN NUMBER RPAREN {printf("input_statement -> INPUT LPAREN NUMBER RPAREN\n");}
 
-print_statement: PRINT LPAREN IDENT RPAREN  {printf("print_statement -> PRINT LPAREN IDENT RPAREN \n");}
-                | PRINT LPAREN NUMBER RPAREN  {printf("print_statement -> PRINT LPAREN NUMBER RPAREN \n");}
-                | PRINT LPAREN expression RPAREN {printf("print_statement -> PRINT LPAREN expression RPAREN \n");}
-                | PRINT LPAREN arr_call RPAREN {printf("print_statement -> PRINT LPAREN arr_call RPAREN \n");}
+if_statement: IF expression LBRACE statements RBRACE else_statement {printf("if_statement -> IF expression LBRACE statement RBRACE else_statement\n");}
 
-input_statement: INPUT LPAREN RPAREN {printf("input_statement -> INPUT LPAREN RPAREN\n");}
+else_statement: %empty {printf("else_statement -> epsilon\n");}
+        | ELSE LBRACE statements RBRACE {printf("else_statement -> ELSE LBRACE statements RBRACE\n");}
 
-if_statement: IF LPAREN expression RPAREN LBRACE statements RBRACE {printf("if_statement -> IF LPAREN expression RPAREN LBRACE statement RBRACE\n");}
-        | IF LPAREN expression RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE {printf("if_statement -> IF LPAREN expression RPAREN LBRACE statement RBRACE ELSE LBRACE statement RBRACE\n");}
-        ;
+while_statement: WHILE LPAREN binary_expression RPAREN LBRACE statements RBRACE {printf("while_statement -> WHILE LPAREN binary_expression RPAREN LBRACE statements RBRACE\n");}
 
-while_statement: WHILE LPAREN expression RPAREN LBRACE statements RBRACE {printf("while_statement -> WHILE LPAREN expression RPAREN LBRACE statements RBRACE\n");}
+break_statement: BREAK {printf("break_statement -> BREAK \n");}
 
-for_statement: FOR LPAREN var_declaration expression  inc_dec_statement RPAREN LBRACE statements RBRACE {printf("for_statement -> FOR LPAREN var_declaration expression  expression RPAREN LBRACE statements RBRACE\n");}
-        | FOR LPAREN assign_statement expression  inc_dec_statement RPAREN LBRACE statements RBRACE {printf("for_statement -> FOR LPAREN assign_statement expression  expression RPAREN LBRACE statements RBRACE\n");}
-        | FOR LPAREN IDENT  expression  inc_dec_statement RPAREN LBRACE statements RBRACE {printf("for_statement -> FOR LPAREN IDENT  expression  expression RPAREN LBRACE statements RBRACE\n");}
-
-break_statement: BREAK  {printf("break_statement -> BREAK \n");}
-
-continue_statement: CONT  {printf("continue_statement -> CONT \n");}
-
-
+continue_statement: CONT {printf("continue_statement -> CONT \n");}
 
 expression: IDENT {printf("expression -> IDENT\n");}
         | NUMBER {printf("expression -> NUMBER\n");}
-        | LPAREN expression RPAREN {printf("expression -> LPAREN expression RPAREN\n");}
         | input_statement {printf("expression -> input_statement\n");}
-        | arr_call {printf("expression -> arr_call\n");}
         | function_call {printf("expression -> function_call\n");}
-        | binary_expression {printf("expression -> binary_expression\n");}
+        | LPAREN binary_expression RPAREN {printf("expression -> LPAREN binary_expression RPAREN\n");}
+        | IDENT LBRACK add_expression RBRACK {printf("expression -> IDENT LBRACK add_expression RBRACK\n");}
+        ;
 
-binary_expression: expression PLUS expression {printf("binary_expression -> expression PLUS expression\n");}
-                | expression MINUS expression {printf("binary_expression -> expression MINUS expression\n");}
-                | expression MULT expression {printf("binary_expression -> expression MULT expression\n");}
-                | expression DIV expression {printf("binary_expression -> expression DIV expression\n");}
-                | expression MOD expression {printf("binary_expression -> expression MOD expression\n");}
-                | expression EQ expression {printf("binary_expression -> expression EQ expression\n");}
-                | expression NEQ expression {printf("binary_expression -> expression NEQ expression\n");}
-                | expression LT expression {printf("binary_expression -> expression LT expression\n");}
-                | expression LTE expression {printf("binary_expression -> expression LTE expression\n");}
-                | expression GT expression {printf("binary_expression -> expression GT expression\n");}
-                | expression GTE expression {printf("binary_expression -> expression GTE expression\n");}
-                | expression AND expression {printf("binary_expression -> expression AND expression\n");}
-                | expression OR expression {printf("binary_expression -> expression OR expression\n");}
+binary_expression: add_expression {printf("binary_expression -> add_expression\n");}
+                | binary_expression EQ add_expression {printf("binary_expression -> binary_expression EQ add_expression\n");}
+                | binary_expression NEQ add_expression {printf("binary_expression -> binary_expression NEQ add_expression\n");}
+                | binary_expression LT add_expression {printf("binary_expression -> binary_expression LT add_expression\n");}
+                | binary_expression LTE add_expression {printf("binary_expression -> binary_expression LTE add_expression\n");}
+                | binary_expression GT add_expression {printf("binary_expression -> binary_expression GT add_expression\n");}
+                | binary_expression GTE add_expression {printf("binary_expression -> binary_expression GTE add_expression\n");}
+                | binary_expression AND add_expression {printf("binary_expression -> binary_expression AND add_expression\n");}
+                | binary_expression OR add_expression {printf("binary_expression -> binary_expression OR add_expression\n");}
                 ;
 
-/* FUNCTION CALL ASSIGNMENT NEEDS DOUBLE ; */
-function_call: IDENT LPAREN args RPAREN  {printf("function_call -> IDENT LPAREN args RPAREN \n");}
+add_expression: mult_expression {printf("add_expression -> mult_expression\n");}
+                | add_expression PLUS mult_expression {printf("add_expression -> add_expression PLUS mult_expression\n");}
+                | add_expression MINUS mult_expression {printf("add_expression -> add_expression MINUS mult_expression\n");}
+                ;
 
-args: %empty {printf("args -> epsilon\n");}
-    | arg repeat_args {printf("args -> arg repeat_args\n");}
+mult_expression: base_expression {printf("mult_expression -> base_expression\n");}
+                | mult_expression MULT base_expression {printf("mult_expression -> mult_expression MULT base_expression\n");}
+                | mult_expression DIV base_expression {printf("mult_expression -> mult_expression DIV base_expression\n");}
+                | mult_expression MOD base_expression {printf("mult_expression -> mult_expression MOD base_expression\n");}
+                ;
 
-repeat_args: %empty {printf("repeat_args -> epsilon\n");}
-        | COMMA arg repeat_args {printf("repeat_args -> COMMA arg repeat_args\n");}
+base_expression: expression {printf("base_expression -> expression\n");}
 
-arg: expression {printf("arg -> expression\n");}
+assign_var: IDENT ASSIGN add_expression {printf("assign_var -> IDENT ASSIGN add_expression\n");}
 
-return_statement: RETURN expression {printf("return_statement -> RETURN expression \n");}
+assign_arr: IDENT LBRACK add_expression RBRACK ASSIGN add_expression {printf("assign_arr -> IDENT LBRACK add_expression RBRACK ASSIGN add_expression\n");}
+
+function_call: IDENT LPAREN param RPAREN {printf("function_call -> IDENT LPAREN param RPAREN \n");}
+
+param: %empty {printf("param -> epsilon \n");}
+        | binary_expression params {printf("param -> binary_expression params \n");}
+        ;
+
+params: %empty {printf("params -> epsilon \n");}
+        | COMMA binary_expression params {printf("params -> COMMA binary_expression params \n");}
+        ;
+
+return_statement: RETURN add_expression {printf("return_expression -> add_expression \n");}
 
 
 

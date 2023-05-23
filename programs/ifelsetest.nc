@@ -6,7 +6,7 @@ fn main() {
   
   //main program
   
-  n = input()
+  n = input(10)
   if (n >= 100) {
     print(n)
   } else {
