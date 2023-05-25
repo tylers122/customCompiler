@@ -17,6 +17,7 @@ void yyerror(const char* s);
 char *identToken;
 int numberToken;
 int  count_names = 0;
+bool main_present = false;
 
 enum Type { Integer, Array };
 
@@ -66,7 +67,9 @@ bool find(std::string &value, Type t) {
 
 void add_function_to_symbol_table(std::string &value) {
   Function f; 
-  f.name = value; 
+  f.name = value;
+  if(value == "main")
+  	main_present = true;
   symbol_table.push_back(f);
 }
 
@@ -809,8 +812,7 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
-	std::string main = "main";
-        if (!find(main)) {
+        if (!main_present) {
 		yyerror("main not defined.\n");
 	}
 }
