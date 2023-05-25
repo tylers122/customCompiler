@@ -81,14 +81,24 @@ void add_variable_to_symbol_table(std::string &value, Type t) {
   f->arguments.push_back(s);
 }
 
+std::string typeToString(Type t) {
+  switch (t) {
+    case Integer:
+      return "Integer";
+    case Array:
+      return "Array";
+  }
+  return "Unknown";
+}
 
-void print_symbol_table(void) {
+void print_symbol_table() {
   printf("symbol table:\n");
   printf("--------------------\n");
-  for(int i=0; i<symbol_table.size(); i++) {
+  for (int i = 0; i < symbol_table.size(); i++) {
     printf("function: %s\n", symbol_table[i].name.c_str());
-    for(int j=0; j<symbol_table[i].arguments.size(); j++) {
-      printf("  locals: %s\n", symbol_table[i].arguments[j].name.c_str());
+    for (int j = 0; j < symbol_table[i].arguments.size(); j++) {
+      printf("  locals: %s, type: %s\n", symbol_table[i].arguments[j].name.c_str(),
+             typeToString(symbol_table[i].arguments[j].type).c_str());
     }
   }
   printf("--------------------\n");
@@ -349,10 +359,6 @@ statement:
         | function_call 
                 {
                         CodeNode *funcCall = $1;
-			if (!find(funcCall->name)) {
-				yyerror("The function has not been defined.");
-			}
-
                         CodeNode *node = new CodeNode;
                         node->code = funcCall->code;
                         $$ = node;
@@ -390,7 +396,7 @@ var_declaration:
                         CodeNode *assignState = $3;
                         Type t = Integer;
 			if(find(ident)) {
-				yyerror("This variable is already defined.");
+				yyerror(("Variable already defined: " + ident).c_str());
 			}
                         add_variable_to_symbol_table(ident, t);
 
@@ -407,15 +413,23 @@ var_declaration:
         ;
 
 arr_declaration: 
-        VAR IDENT LBRACK add_expression RBRACK assign_statement
+        VAR IDENT LBRACK NUMBER RBRACK assign_statement
                 {
                         std::string ident = $2;
-                        CodeNode *addexp = $4;
+                        std::string size = $4;
                         CodeNode *assignState = $6;
+                        if(find(ident)){
+                                yyerror(("Array variable already defined: " + ident).c_str());
+                        }
+                        int arraySize; 
+                        std::stringstream ss(size);
+                        if (!(ss >> arraySize) || arraySize <= 0) {
+                                yyerror(("Invalid array size: " + ident).c_str());
+                        }
                         Type t = Array;
                         add_variable_to_symbol_table(ident, t);
 
-                        std::string code = std::string(".[] ") + ident + std::string(", ") + addexp->name + std::string("\n");
+                        std::string code = std::string(".[] ") + ident + std::string(", ") + size + std::string("\n");
 
                         CodeNode *node = new CodeNode;
                         node->code = code;
@@ -494,10 +508,10 @@ expression:
                 {
 			std::string i = $1;
                 	if(!find(i)) {
-                		yyerror("variables used, previously not defined");
+                		yyerror(("Variable previously not defined" + i).c_str());
                 	}
 			if(find(i, Array)) {
-				yyerror("Regular variable used as array.");
+				yyerror(("Integer variable used as array: " + i).c_str());
 			}
                         CodeNode *node = new CodeNode;
                         node->name = i;
@@ -541,10 +555,10 @@ expression:
                         std::string temp = create_temp();
                         std::string ident = $1;
 			if(!find(ident)) {
-				yyerror("Array not defined.");
+				yyerror(("Array not defined: " + ident).c_str());
 			}
-			else if(find(ident, Integer)) {
-				yyerror("Brackets don't apply to Integer variables.");			
+			if(find(ident, Integer)) {
+				yyerror(("Brackets don't apply to Integer variables: " + ident).c_str());			
 			}
                         CodeNode *addexp = $3;
                         std::string code = decl_temp(temp) + std::string ("=[] ") + temp + std::string(", ") + ident + std::string(", ") + addexp->name + std::string("\n");
@@ -722,7 +736,10 @@ assign_var:
                         std::string ident = $1;
                         CodeNode *addexp = $3;
                         if(!find(ident)) {
-                        	yyerror("used variable was not previously declared.");
+                        	yyerror(("Variable was not previously declared: " + ident).c_str());
+                        }
+                        if(find(ident, Array)){
+                                yyerror(("Array variable used as integer variable: " + ident).c_str());
                         }
                         std::string code = addexp->code + std::string("= ") + ident + std::string(", ") + addexp->name + std::string("\n");
                         CodeNode *node = new CodeNode;
@@ -736,6 +753,12 @@ assign_arr:
                         std::string ident = $1;
                         CodeNode *index = $3;
                         CodeNode *addexp = $6;
+                        if(!find(ident)) {
+                        	yyerror(("Array was not previously declared:" + ident).c_str());
+                        }
+                        if(find(ident, Integer)){
+                                yyerror(("Integer variable used as array variable: " + ident).c_str());
+                        }
                         std::string code = index->code + addexp->code + std::string("[]= ") + ident + std::string(", ") + index->name + std::string(", ") + addexp->name + std::string("\n");
                         CodeNode *node = new CodeNode;
                         node->code = code;
@@ -748,6 +771,9 @@ function_call:
                         std::string temp = create_temp();
                         std::string ident = $1;
                         CodeNode *param = $3;
+                        if (!find(ident)) {
+				yyerror(("The function has not been defined: " + ident).c_str());
+			}
                         std::string code = param->code + decl_temp(temp);
                         code += std::string("call ") + ident + std::string(", ") + temp + std::string("\n");
                         CodeNode *node = new CodeNode;
@@ -800,7 +826,7 @@ return_statement:
                 }
 %%
 void yyerror(const char* s) {
-	fprintf(stderr, "Error %s at line %d, column %d\n", s, yylineno, curr_col);
+	fprintf(stderr, "Error: %s, at line %d, column %d\n", s, yylineno, curr_col);
 } 
 int main(int argc, char** argv) {
 	if (argc >= 2) {
@@ -812,7 +838,8 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
+        print_symbol_table();
         if (!main_present) {
-		yyerror("main not defined.\n");
+		yyerror("Main not defined\n");
 	}
 }
