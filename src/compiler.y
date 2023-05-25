@@ -838,8 +838,8 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
-        print_symbol_table();
+        
         if (!main_present) {
-		yyerror("Main not defined\n");
+		yyerror("Main not defined");
 	}
 }
