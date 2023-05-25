@@ -833,11 +833,18 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 71 "lexer.lex"
-{ curr_col += strlen(yytext);  return NUMBER;}
+{ 
+            curr_col += strlen(yytext);
+            char * token = new char[yyleng];
+            strcpy(token, yytext);
+            yylval.op_val = token;
+            numberToken = atoi(yytext);
+            return NUMBER;
+        }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 72 "lexer.lex"
+#line 79 "lexer.lex"
 {
                 if(strcmp(yytext, "print") == 0) {
                     curr_col += strlen(yytext);
@@ -890,162 +897,162 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 121 "lexer.lex"
+#line 128 "lexer.lex"
 {curr_col += strlen(yytext); return PLUS;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 122 "lexer.lex"
+#line 129 "lexer.lex"
 {curr_col += strlen(yytext); return MINUS;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 123 "lexer.lex"
+#line 130 "lexer.lex"
 {curr_col += strlen(yytext); return MULT;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 124 "lexer.lex"
+#line 131 "lexer.lex"
 {curr_col += strlen(yytext); return DIV;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 125 "lexer.lex"
+#line 132 "lexer.lex"
 {curr_col += strlen(yytext); return MOD;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 126 "lexer.lex"
+#line 133 "lexer.lex"
 {curr_col += strlen(yytext); return ASSIGN;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 127 "lexer.lex"
+#line 134 "lexer.lex"
 {curr_col += strlen(yytext); return PLUS_ASSIGN;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 128 "lexer.lex"
+#line 135 "lexer.lex"
 {curr_col += strlen(yytext); return MINUS_ASSIGN;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 129 "lexer.lex"
+#line 136 "lexer.lex"
 {curr_col += strlen(yytext); return MULT_ASSIGN;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 130 "lexer.lex"
+#line 137 "lexer.lex"
 {curr_col += strlen(yytext); return DIV_ASSIGN;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 131 "lexer.lex"
+#line 138 "lexer.lex"
 {curr_col += strlen(yytext); return MOD_ASSIGN;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 132 "lexer.lex"
+#line 139 "lexer.lex"
 {curr_col += strlen(yytext); return INCREMENT;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 133 "lexer.lex"
+#line 140 "lexer.lex"
 {curr_col += strlen(yytext); return DECREMENT;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 134 "lexer.lex"
+#line 141 "lexer.lex"
 {curr_col += strlen(yytext); return EQ;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 135 "lexer.lex"
+#line 142 "lexer.lex"
 {curr_col += strlen(yytext); return NEQ;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 136 "lexer.lex"
+#line 143 "lexer.lex"
 {curr_col += strlen(yytext); return LT;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 137 "lexer.lex"
+#line 144 "lexer.lex"
 {curr_col += strlen(yytext); return GT;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 138 "lexer.lex"
+#line 145 "lexer.lex"
 {curr_col += strlen(yytext); return LTE;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 139 "lexer.lex"
+#line 146 "lexer.lex"
 {curr_col += strlen(yytext); return GTE;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 140 "lexer.lex"
+#line 147 "lexer.lex"
 {curr_col += strlen(yytext); return AND;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 141 "lexer.lex"
+#line 148 "lexer.lex"
 {curr_col += strlen(yytext); return OR;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 142 "lexer.lex"
+#line 149 "lexer.lex"
 {curr_col += strlen(yytext); return NOT;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 143 "lexer.lex"
+#line 150 "lexer.lex"
 {curr_col += strlen(yytext); return LPAREN;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 144 "lexer.lex"
+#line 151 "lexer.lex"
 {curr_col += strlen(yytext); return RPAREN;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 145 "lexer.lex"
+#line 152 "lexer.lex"
 {curr_col += strlen(yytext); return LBRACE;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 146 "lexer.lex"
+#line 153 "lexer.lex"
 {curr_col += strlen(yytext); return RBRACE;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 147 "lexer.lex"
+#line 154 "lexer.lex"
 {curr_col += strlen(yytext); return LBRACK;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 148 "lexer.lex"
+#line 155 "lexer.lex"
 {curr_col += strlen(yytext); return RBRACK;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 149 "lexer.lex"
+#line 156 "lexer.lex"
 {curr_col += strlen(yytext); return COLON;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 150 "lexer.lex"
+#line 157 "lexer.lex"
 {curr_col += strlen(yytext); return SEMICOLON;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 151 "lexer.lex"
+#line 158 "lexer.lex"
 {curr_col += strlen(yytext); return COMMA;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 154 "lexer.lex"
+#line 161 "lexer.lex"
 {
     curr_col++;
     fprintf(stderr, "Error at line %d, column %d: Token cannot start with underscore: %s\n", yylineno + 1, curr_col, yytext);
@@ -1054,7 +1061,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 159 "lexer.lex"
+#line 166 "lexer.lex"
 {
     curr_col++;
     fprintf(stderr, "Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", yylineno + 1, curr_col, yytext);
@@ -1064,7 +1071,7 @@ YY_RULE_SETUP
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 164 "lexer.lex"
+#line 171 "lexer.lex"
 {
     curr_line++;
     curr_col = 1;
@@ -1072,10 +1079,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 169 "lexer.lex"
+#line 176 "lexer.lex"
 ECHO;
 	YY_BREAK
-#line 1079 "lex.yy.c"
+#line 1086 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2069,7 +2076,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 169 "lexer.lex"
+#line 176 "lexer.lex"
 
 
 

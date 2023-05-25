@@ -31,10 +31,6 @@ struct Function {
 };
 
 std::vector <Function> symbol_table;
-
-// remember that Bison is a bottom up parser: that it parses leaf nodes first before
-// parsing the parent nodes. So control flow begins at the leaf grammar nodes
-// and propagates up to the parents.
 Function *get_function() {
   int last = symbol_table.size()-1;
   if (last < 0) {
@@ -46,10 +42,6 @@ Function *get_function() {
   return &symbol_table[last];
 }
 
-// find a particular variable using the symbol table.
-// grab the most recent function, and linear search to
-// find the symbol you are looking for.
-// you may want to extend "find" to handle different types of "Integer" vs "Array"
 bool find(std::string &value) {
   Function *f = get_function();
   for(int i=0; i < f->arguments.size(); i++) {
@@ -61,16 +53,23 @@ bool find(std::string &value) {
   return false;
 }
 
-// when you see a function declaration inside the grammar, add
-// the function name to the symbol table
+bool find(std::string &value, Type t) {
+  Function *f = get_function();
+  for(int i=0; i < f->arguments.size(); i++) {
+    Symbol *s = &f->arguments[i];
+    if (s->name == value && s->type == t) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void add_function_to_symbol_table(std::string &value) {
   Function f; 
   f.name = value; 
   symbol_table.push_back(f);
 }
 
-// when you see a symbol declaration inside the grammar, add
-// the symbol name as well as some type information to the symbol table
 void add_variable_to_symbol_table(std::string &value, Type t) {
   Symbol s;
   s.name = value;
@@ -79,8 +78,7 @@ void add_variable_to_symbol_table(std::string &value, Type t) {
   f->arguments.push_back(s);
 }
 
-// a function to print out the symbol table to the screen
-// largely for debugging purposes.
+
 void print_symbol_table(void) {
   printf("symbol table:\n");
   printf("--------------------\n");
@@ -159,8 +157,6 @@ std::string decl_temp(std::string &temp){
 %type   <node>  param
 %type   <node>  params
 %type   <node>  return_statement
-
-
 
 %%
 prog_start: 
@@ -350,6 +346,9 @@ statement:
         | function_call 
                 {
                         CodeNode *funcCall = $1;
+			if (!find(funcCall->name)) {
+				yyerror("The function has not been defined.");
+			}
 
                         CodeNode *node = new CodeNode;
                         node->code = funcCall->code;
@@ -387,6 +386,9 @@ var_declaration:
                         std::string ident = $2;
                         CodeNode *assignState = $3;
                         Type t = Integer;
+			if(find(ident)) {
+				yyerror("This variable is already defined.");
+			}
                         add_variable_to_symbol_table(ident, t);
 
                         std::string code = std::string(". ") + ident + std::string("\n");
@@ -438,9 +440,7 @@ print_statement:
         PRINT LPAREN binary_expression RPAREN  
                 {
                         CodeNode *binexp = $3;
-
                         std::string code = binexp->code + std::string(".> ") + binexp->name + std::string("\n");
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
@@ -450,9 +450,7 @@ input_statement:
         INPUT LPAREN NUMBER RPAREN 
                 {
                         std::string value = $3;
-
                         std::string code = std::string(".< ") + value + std::string("\n");
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         node->name = value;
@@ -462,52 +460,50 @@ input_statement:
 if_statement: 
         IF expression LBRACE statements RBRACE else_statement
                 {
-
                 }
 
 else_statement:
         %empty
                 {
-
                 }
         | ELSE LBRACE statements RBRACE
                 {
-
                 }
         ;
 
 while_statement: 
         WHILE LPAREN binary_expression RPAREN LBRACE statements RBRACE 
                 {
-                
                 }
 
 break_statement: 
         BREAK  
                 {
-
                 }
 
 continue_statement: 
         CONT  
                 {
-
                 }
 
 expression: 
         IDENT 
                 {
-                        std::string ident = $1;
-
+			std::string i = $1;
+                	if(!find(i)) {
+                		yyerror("variables used, previously not defined");
+                	}
+			if(find(i, Array)) {
+				yyerror("Regular variable used as array.");
+			}
                         CodeNode *node = new CodeNode;
-                        node->name = ident;
+                        node->name = i;
                         $$ = node;
 
                 }
         | NUMBER 
                 {
                         std::string value = $1;
-
                         CodeNode *node = new CodeNode;
                         node->name = value;
                         $$ = node;
@@ -515,7 +511,6 @@ expression:
         | LPAREN binary_expression RPAREN 
                 {
                         CodeNode *binexp = $2;
-
                         CodeNode *node = new CodeNode;
                         node->code = binexp->code;
                         node->name = binexp->name;
@@ -525,7 +520,6 @@ expression:
         | input_statement 
                 {
                         CodeNode *inState = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = inState->code;
                         node->name = inState->name;
@@ -534,7 +528,6 @@ expression:
         | function_call 
                 {
                         CodeNode *func = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = func->code;
                         node->name = func->name;
@@ -544,10 +537,14 @@ expression:
                 {
                         std::string temp = create_temp();
                         std::string ident = $1;
+			if(!find(ident)) {
+				yyerror("Array not defined.");
+			}
+			else if(find(ident, Integer)) {
+				yyerror("Brackets don't apply to Integer variables.");			
+			}
                         CodeNode *addexp = $3;
-
                         std::string code = decl_temp(temp) + std::string ("=[] ") + temp + std::string(", ") + ident + std::string(", ") + addexp->name + std::string("\n");
-                        
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         node->name = temp;
@@ -558,7 +555,6 @@ binary_expression:
         add_expression
                 {
                         CodeNode *addexp = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = addexp->code;
                         node->name = addexp->name;
@@ -567,7 +563,6 @@ binary_expression:
         | binary_expression EQ add_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -577,7 +572,6 @@ binary_expression:
         | binary_expression NEQ add_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -587,7 +581,6 @@ binary_expression:
         | binary_expression LT add_expression 
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -607,7 +600,6 @@ binary_expression:
         | binary_expression GT add_expression 
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -617,7 +609,6 @@ binary_expression:
         | binary_expression GTE add_expression 
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -637,7 +628,6 @@ binary_expression:
         | binary_expression OR add_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code + decl_temp(temp);
                         node->code += std::string("|| ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -650,7 +640,6 @@ add_expression:
         mult_expression
                 {
                         CodeNode *multexp = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = multexp->code;
                         node->name = multexp->name;
@@ -659,7 +648,6 @@ add_expression:
         | add_expression PLUS mult_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code;
                         node->code += decl_temp(temp) + std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -669,7 +657,6 @@ add_expression:
         | add_expression MINUS mult_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code;
                         node->code += decl_temp(temp) + std::string("- ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -682,7 +669,6 @@ mult_expression:
         base_expression
                 {
                         CodeNode *baseexp = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = baseexp->code;
                         node->name = baseexp->name;
@@ -691,7 +677,6 @@ mult_expression:
         | mult_expression MULT base_expression 
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code;
                         node->code += decl_temp(temp) + std::string("* ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -701,7 +686,6 @@ mult_expression:
         | mult_expression DIV base_expression 
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code;
                         node->code += decl_temp(temp) + std::string("/ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -711,7 +695,6 @@ mult_expression:
         | mult_expression MOD base_expression
                 {
                         std::string temp = create_temp();
-
                         CodeNode *node = new CodeNode;
                         node->code = $1->code + $3->code;
                         node->code += decl_temp(temp) + std::string("% ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
@@ -724,7 +707,6 @@ base_expression:
         expression
                 {
                         CodeNode *exp = $1;
-                        
                         CodeNode *node = new CodeNode;
                         node->code = exp->code;
                         node->name = exp->name;
@@ -736,9 +718,10 @@ assign_var:
                 {
                         std::string ident = $1;
                         CodeNode *addexp = $3;
-
+                        if(!find(ident)) {
+                        	yyerror("used variable was not previously declared.");
+                        }
                         std::string code = addexp->code + std::string("= ") + ident + std::string(", ") + addexp->name + std::string("\n");
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
@@ -750,9 +733,7 @@ assign_arr:
                         std::string ident = $1;
                         CodeNode *index = $3;
                         CodeNode *addexp = $6;
-
                         std::string code = index->code + addexp->code + std::string("[]= ") + ident + std::string(", ") + index->name + std::string(", ") + addexp->name + std::string("\n");
-                        
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
@@ -764,10 +745,8 @@ function_call:
                         std::string temp = create_temp();
                         std::string ident = $1;
                         CodeNode *param = $3;
-
                         std::string code = param->code + decl_temp(temp);
                         code += std::string("call ") + ident + std::string(", ") + temp + std::string("\n");
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         node->name = temp;
@@ -784,10 +763,8 @@ param:
                 {
                         CodeNode *addexp = $1;
                         CodeNode *params = $2;
-
                         std::string code = std::string("param ") + addexp->name + std::string("\n");
                         code += params->code;
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
@@ -802,10 +779,8 @@ params:
         | COMMA add_expression params
                 {
                         CodeNode *addexp = $2;
-
                         std::string code = addexp->code;
                         code += std::string("param ") + addexp->name + std::string("\n");
-
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
@@ -815,23 +790,15 @@ return_statement:
         RETURN add_expression
                 {
                         CodeNode *ret = $2;
-
                         std::string code = ret->code + std::string("ret ") + ret->name + std::string("\n");
-                        
                         CodeNode *node = new CodeNode;
                         node->code = code;
                         $$ = node;
                 }
-
-
-
 %%
-
-
 void yyerror(const char* s) {
 	fprintf(stderr, "Error %s at line %d, column %d\n", s, yylineno, curr_col);
 } 
-
 int main(int argc, char** argv) {
 	if (argc >= 2) {
 		yyin = fopen(argv[1], "r");
@@ -842,6 +809,8 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
-
-        
+	std::string main = "main";
+        if (!find(main)) {
+		yyerror("main not defined.\n");
+	}
 }
