@@ -5,6 +5,9 @@
 
 int curr_line = 1;
 int curr_col = 1;
+
+extern char *identToken;
+extern int numberToken;
 %}
 
 /*
@@ -61,24 +64,18 @@ VAR (var)
 
 [ \t\r]+  { curr_col += strlen(yytext); /* ignore whitespaces */ }
 "//"(.*)    { /* ignore single-line comments */ yymore(); }
-"/*"        { /* ignore multi-line comments */
-                  int c;
-                  yymore();
-                  while ((c = input()) != EOF) {
-                      yymore();
-                      if (c == '*') {
-                          if ((c = input()) == '/') {
-                              break;
-                          } else {
-                              unput(c);
-                          }
-                      }
-                  }
-              }
+"/*"        { /* ignore multi-line comments */}
 
 
 
-[0-9]+    { curr_col += strlen(yytext);  return NUMBER;}
+[0-9]+  { 
+            curr_col += strlen(yytext);
+            char * token = new char[yyleng];
+            strcpy(token, yytext);
+            yylval.op_val = token;
+            numberToken = atoi(yytext);
+            return NUMBER;
+        }
 [A-Za-z]+    {
                 if(strcmp(yytext, "print") == 0) {
                     curr_col += strlen(yytext);
@@ -121,6 +118,10 @@ VAR (var)
                     return VAR;
                 } else {
                     curr_col += strlen(yytext);
+                    char * token = new char[yyleng];
+                    strcpy(token, yytext);
+                    yylval.op_val = token;
+                    identToken = yytext;
                     return IDENT;
                 }
             }
@@ -159,12 +160,12 @@ VAR (var)
 
 [_~@$^]+[A-Za-z]+   {
     curr_col++;
-    fprintf(stderr, "Error at line %d, column %d: Token cannot start with underscore: %s\n", yylineno + 1, curr_col, yytext);
+    fprintf(stderr, "Error at line %d, column %d: Token cannot start with underscore: %s\n", curr_line++, curr_col, yytext);
     return INVALID_IDENT;
 }
 .               {
     curr_col++;
-    fprintf(stderr, "Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", yylineno + 1, curr_col, yytext);
+    fprintf(stderr, "Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", curr_line++, curr_col, yytext);
     return INVALID_TOKEN;
 }
 \n              {
