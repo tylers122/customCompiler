@@ -12,6 +12,7 @@ extern FILE* yyin;
 extern int yylex(void);
 extern int yylineno;
 extern int curr_col;
+extern int curr_line;
 void yyerror(const char* s);
 
 char *identToken;
@@ -826,7 +827,7 @@ return_statement:
                 }
 %%
 void yyerror(const char* s) {
-	fprintf(stderr, "Error: %s, at line %d, column %d\n", s, yylineno, curr_col);
+	fprintf(stderr, "Error at line %d, column %d: %s\n", curr_line, curr_col, s);
 } 
 int main(int argc, char** argv) {
 	if (argc >= 2) {

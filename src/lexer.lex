@@ -160,12 +160,12 @@ VAR (var)
 
 [_~@$^]+[A-Za-z]+   {
     curr_col++;
-    fprintf(stderr, "Error at line %d, column %d: Token cannot start with underscore: %s\n", yylineno + 1, curr_col, yytext);
+    fprintf(stderr, "Error at line %d, column %d: Token cannot start with underscore: %s\n", curr_line++, curr_col, yytext);
     return INVALID_IDENT;
 }
 .               {
     curr_col++;
-    fprintf(stderr, "Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", yylineno + 1, curr_col, yytext);
+    fprintf(stderr, "Error at line %d, column %d: UNRECOGNIZED PATTERN: %s\n", curr_line++, curr_col, yytext);
     return INVALID_TOKEN;
 }
 \n              {
