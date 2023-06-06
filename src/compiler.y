@@ -772,9 +772,16 @@ function_call:
                         std::string temp = create_temp();
                         std::string ident = $1;
                         CodeNode *param = $3;
-                        if (!find(ident)) {
-				yyerror(("The function has not been defined: " + ident).c_str());
-			}
+                        bool exists = false;
+                        for (std::size_t i = 0; i < symbol_table.size(); ++i) {
+                                if (symbol_table[i].name == ident) {
+                                        exists = true;
+                                        break;
+                                }
+                        }
+                        if(!exists){
+                                yyerror(("Array was not previously declared:" + ident).c_str());
+                        }
                         std::string code = param->code + decl_temp(temp);
                         code += std::string("call ") + ident + std::string(", ") + temp + std::string("\n");
                         CodeNode *node = new CodeNode;
