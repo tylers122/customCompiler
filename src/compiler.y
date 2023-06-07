@@ -120,9 +120,41 @@ std::string create_temp() {
         return value;
 }
 
+std::string create_iftemp() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "if_true" + ss.str();
+        num += 1;
+        return value;
+}
+
+std::string create_elsetemp() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "else" + ss.str();
+        num += 1;
+        return value;
+}
+
+std::string create_endtemp() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "endif" + ss.str();
+        num += 1;
+        return value;
+}
+
 std::string decl_temp(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
+
+#ifndef nullptr
+#define nullptr NULL
+#endif
+
 %}
 
 
@@ -320,7 +352,6 @@ statement:
         | arr_declaration 
                 {
                         CodeNode *arrDec = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = arrDec->code;
                         $$ = node;
@@ -328,7 +359,6 @@ statement:
         | print_statement 
                 {
                         CodeNode *print = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = print->code;
                         $$ = node;
@@ -336,26 +366,37 @@ statement:
         | input_statement 
                 {
                         CodeNode *input = $1;
-
                         CodeNode *node = new CodeNode;
                         node->code = input->code;
                         $$ = node;
                 }
         | if_statement 
                 {
-
+                        CodeNode *ifDec = $1;
+                        CodeNode *node = new CodeNode;
+                        node->code = ifDec->code;
+                        $$ = node;
                 }
         | while_statement 
                 {
-                        
+                        CodeNode *whileDec = $1;
+                        CodeNode *node = new CodeNode;
+                        node->code = whileDec->code;
+                        $$ = node; 
                 }
         | break_statement 
                 {
-                        
+                        CodeNode *breakDec = $1;
+                        CodeNode *node = new CodeNode;
+                        node->code = breakDec->code;
+                        $$ = node;
                 }
         | continue_statement 
                 {
-                        
+                        CodeNode *continueDec = $1;
+                        CodeNode *node = new CodeNode;
+                        node->code = continueDec->code;
+                        $$ = node;
                 }
         | function_call 
                 {
@@ -478,30 +519,74 @@ input_statement:
 if_statement: 
         IF expression LBRACE statements RBRACE else_statement
                 {
+                        CodeNode *exp = $2;
+                        CodeNode *stmts = $4;
+                        CodeNode *elseStmt = $6;
+                        std::string iftemp = create_iftemp();
+                        std::string elsetemp = create_elsetemp();
+                        std::string endtemp = create_endtemp();
+
+                        std::string code = exp->code + std::string(" ?:= ") + iftemp +
+                        std::string(", ") + exp->name + std::string("\n");
+                        
+                        if (elseStmt != nullptr)
+                        {
+                                code += std::string(":= ") + elsetemp + std::string("\n");
+                        }
+                         
+                        code += std::string(": ") + iftemp + std::string("\n") + stmts->code +
+                        std::string(":= ") + endtemp + std::string("\n");
+
+                        if (elseStmt != nullptr)
+                        {
+                                code += std::string(": ") + elsetemp + std::string("\n");
+                        }
+
+                        if (elseStmt != nullptr)
+                        {
+                                code += elseStmt->code;
+                        }
+
+                        code += std::string(": ") + endtemp + std::string("\n");
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
 
 else_statement:
         %empty
                 {
+                        CodeNode *node = nullptr;
+                        $$ = node;  
                 }
         | ELSE LBRACE statements RBRACE
                 {
+                        CodeNode *stmts = $3;
+                        std::string code = stmts->code;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;                        
                 }
         ;
 
 while_statement: 
         WHILE LPAREN binary_expression RPAREN LBRACE statements RBRACE 
                 {
+
                 }
 
 break_statement: 
         BREAK  
                 {
+
                 }
 
 continue_statement: 
         CONT  
                 {
+
                 }
 
 expression: 
