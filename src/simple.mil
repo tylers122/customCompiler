@@ -1,10 +1,19 @@
-fn main( {
-  var a
-  var b
-  _var c   //this should produce invalid indentifier
+//This is a simple loop with a break statement
+
+fn main() {
+
+  var i
   
-  a = 100
-  b = 50
+  i = 0
+  while (i <= 10) {
+    print(i)
+    
+    if (i > 2) {
+      break
+    }
+    
+    i = i + 1    
+    
+  }
   
-  c .= a   //this should produce invalid character
 }

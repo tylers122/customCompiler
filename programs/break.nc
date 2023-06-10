@@ -8,7 +8,7 @@ fn main() {
   while (i <= 10) {
     print(i)
     
-    if (i < 3) {
+    if (i > 2) {
       break
     }
     

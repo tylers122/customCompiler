@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <stack>
 
 extern FILE* yyin;
 extern int yylex(void);
@@ -19,6 +20,8 @@ char *identToken;
 int numberToken;
 int  count_names = 0;
 bool main_present = false;
+int inloop = -1;
+std::stack<int> loopstack;
 
 enum Type { Integer, Array };
 
@@ -123,6 +126,40 @@ std::string create_temp() {
 std::string decl_temp(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
+
+
+std::string create_if() {
+        static int if_num = 0;
+        std::ostringstream ss;
+        ss << if_num;
+        std::string t = std::string("if_true") + ss.str();
+        if_num++;
+        return t;
+}
+
+std::string create_else() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string t = std::string("else") + ss.str();
+        num++;
+        return t;
+}
+
+std::string decl_label(std::string &temp) {
+        return std::string(": ") + temp + std::string("\n");
+}
+
+std::string create_loop() {
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string t = std::string("beginloop") + ss.str();
+        num++;
+        loopstack.push(num);
+        return t;
+}
+
 %}
 
 
@@ -158,8 +195,6 @@ std::string decl_temp(std::string &temp){
 %type   <node>  if_statement
 %type   <node>  else_statement
 %type   <node>  while_statement
-%type   <node>  break_statement
-%type   <node>  continue_statement
 %type   <node>  expression
 %type   <node>  binary_expression
 %type   <node>  add_expression
@@ -342,20 +377,53 @@ statement:
                         $$ = node;
                 }
         | if_statement 
-                {
+                {       CodeNode *ifState = $1;
 
+                        CodeNode *node = new CodeNode;
+                        node->code = ifState->code;
+                        $$ = node;
                 }
         | while_statement 
                 {
-                        
+                        CodeNode *whileState = $1;
+
+                        CodeNode *node = new CodeNode;
+                        node->code = whileState->code;
+                        $$ = node;
                 }
-        | break_statement 
+        | BREAK 
                 {
-                        
+                        std::string code = std::string(":= endloop");
+                        if(loopstack.empty()) {
+                                yyerror("break is not inside loop statement");
+                                exit(10);
+                        } else {
+                                static int num = loopstack.top();
+                                std::ostringstream ss;
+                                ss << num;
+                                code += ss.str() + std::string("\n");
+                        }
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
-        | continue_statement 
+        | CONT
                 {
-                        
+                        std::string code = std::string(":= beginloop");
+                        if(loopstack.empty()) {
+                                yyerror("continue is not inside loop statement");
+                                exit(9);
+                        } else {
+                                static int num = loopstack.top();
+                                std::ostringstream ss;
+                                ss << num;
+                                code += ss.str() + std::string("\n");
+                        }
+
+                        CodeNode *node = new CodeNode;
+                        node->code = code;
+                        $$ = node;
                 }
         | function_call 
                 {
@@ -478,30 +546,68 @@ input_statement:
 if_statement: 
         IF expression LBRACE statements RBRACE else_statement
                 {
+                        CodeNode *exp = $2;
+                        CodeNode *state = $4;
+                        CodeNode *elseState = $6;
+
+                        CodeNode *node = new CodeNode;
+
+                        std::string label = create_if();
+                        std::string code = exp->code;
+                        code += std::string("?:= ") + label + std::string(", ") + exp->name + std::string("\n");
+                        code += elseState->name; 
+                        code += std::string(": ") + label + std::string("\n");
+                        code += state->code;
+
+                        std::string temp = std::string("endif") + label.substr(label.find("e") + 1, label.at(label.size() - 1));
+                        code += std::string(":= ") + temp + std::string("\n");
+                        code += elseState->code; 
+                        code += std::string(": ") + temp + std::string("\n");
+                        
+                        node->code = code;
+                        $$ = node;
                 }
 
 else_statement:
         %empty
                 {
+                        CodeNode *node = new CodeNode;
+                        $$ = node;
                 }
         | ELSE LBRACE statements RBRACE
                 {
+                        CodeNode *node = new CodeNode;
+                        std::string n = create_else();
+                        node->name = std::string(":= ") + n + std::string("\n");
+
+                        CodeNode *state = $3;
+                        node->code = decl_label(n) + state->code;
+                        $$ = node;
                 }
         ;
+
 
 while_statement: 
         WHILE LPAREN binary_expression RPAREN LBRACE statements RBRACE 
                 {
-                }
+                        CodeNode *exp = $3;
+                        CodeNode *state = $6;
+                        CodeNode *node = new CodeNode;
 
-break_statement: 
-        BREAK  
-                {
-                }
+                        std::string loopName = create_loop();
+                        std::string integer = loopName.substr(loopName.find("p") + 1, loopName.at(loopName.size() - 1));
 
-continue_statement: 
-        CONT  
-                {
+                        std::string code = std::string(": ") + loopName + std::string("\n") + exp->code;
+                        code += std::string("?:= loopbody") + integer + std::string(", ") + exp->name + std::string("\n");
+                        code += std::string(":= endloop") + integer + std::string("\n");
+                        code += std::string(": loopbody") + integer + std::string("\n");
+                        code += state->code;
+                        code += std::string(":= ") + loopName + std::string("\n");
+                        code += std::string(": endloop") + integer + std::string("\n");
+
+                        loopstack.pop();
+                        node->code = code;
+                        $$ = node;
                 }
 
 expression: 
